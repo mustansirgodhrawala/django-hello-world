@@ -1,0 +1,39 @@
+# Create virtualenv for project 
+virtualenv venv
+source env/bin/activate 
+pip3 install mysqlclient
+
+# Login to mysql
+service mysql start
+sudo su
+mysql
+
+# Database Creation
+CREATE DATABASE mytestdb;
+
+# User Creation 
+CREATE USER 'test'@'localhost' IDENTIFIED BY 'Secret_1234';
+
+# Granting privs to new user 
+GRANT ALL PRIVILEGES ON `mytestdb` . * TO 'test'@'localhost';
+FLUSH PRIVILEGES; 
+
+
+# Django Settings update
+# File: core/settings.py
+DATABASES = {
+    'default': {
+        'ENGINE'  : 'django.db.backends.mysql', # <-- UPDATED line 
+        'NAME'    : 'mytestdb',                 # <-- UPDATED line 
+        'USER'    : 'test',                     # <-- UPDATED line
+        'PASSWORD': 'Secret_1234',              # <-- UPDATED line
+        'HOST'    : 'localhost',                # <-- UPDATED line
+        'PORT'    : '3306',
+    }
+}
+
+# Create table in database
+python manage.py makemigrations
+python3 manage.py migrate
+
+# Django is now ready to work with mysql
